@@ -12,13 +12,22 @@ const NOT_FOUND_MESAGE = {
   message: 'Pessoa palestrante não encontrada',
 };
 
+function randomStringGenerator(size) {
+  let randomString = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < size; i++) {
+      randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return randomString;
+}
+
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
 app.get('/talker', (req, res) => {
-  const filePath = path.join(__dirname, 'talker.json'); 
+  const filePath = path.join(__dirname, 'talker.json');
   const data = fs.readFileSync(filePath);
   const talker = JSON.parse(data);
 
@@ -43,6 +52,13 @@ app.get('/talker/:id', (req, res) => {
     res.status(HTTP_NOT_FOUND_STATUS).json(NOT_FOUND_MESAGE);
   }
 });
+
+app.post('/login', (req, res) => {
+      let token = '';
+      // const { email, password } = req.body;
+      token = randomStringGenerator(16);
+      res.status(HTTP_OK_STATUS).json({ token }); 
+  });
 
 app.listen(PORT, () => {
   console.log('Online');
