@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const tokengenerate = require('./tokengenerate');
 
 const app = express();
 app.use(express.json());
@@ -11,15 +12,6 @@ const PORT = process.env.PORT || '3001';
 const NOT_FOUND_MESAGE = {
   message: 'Pessoa palestrante não encontrada',
 };
-
-function randomStringGenerator(size) {
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < size; i++) {
-      randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return randomString;
-}
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -56,7 +48,7 @@ app.get('/talker/:id', (req, res) => {
 app.post('/login', (req, res) => {
       let token = '';
       // const { email, password } = req.body;
-      token = randomStringGenerator(16);
+      token = tokengenerate(16);
       res.status(HTTP_OK_STATUS).json({ token }); 
   });
 
