@@ -1,0 +1,11 @@
+const HTTP_OK_STATUS = 200;
+const HTTP_NOT_FOUND_400_STATUS = 400;
+const HTTP_NOT_FOUND_404_STATUS = 404;
+const PORT = process.env.PORT || '3001';
+
+module.exports = {
+    HTTP_OK_STATUS,
+    HTTP_NOT_FOUND_404_STATUS,
+    HTTP_NOT_FOUND_400_STATUS,
+    PORT,
+};
