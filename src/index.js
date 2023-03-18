@@ -44,7 +44,7 @@ app.get('/talker/:id', (req, res) => {
     }
 });
 
-app.post('/login', validationEmail, validationPassword, (req, res) => {
+app.post('/login', validationEmail, validationPassword, async (req, res) => {
     let token = '';
     token = tokengenerate(16);
 
