@@ -3,11 +3,17 @@ const fs = require('fs');
 const path = require('path');
 const tokengenerate = require('./tokengenerate');
 const { validationEmail, validationPassword } = require('./middlewarelogin');
-const {
-    HTTP_OK_STATUS,
-    HTTP_NOT_FOUND_404_STATUS,
-    PORT,
-} = require('./variables');
+const { validationToken,
+    validationName,
+    validationAge,
+    validationTalk,
+    validationTalkWatchedAt,
+    validationTalkRate } = require('./middlearetalker');
+const { 
+        HTTP_OK_STATUS, 
+        HTTP_NOT_FOUND_404_STATUS, 
+        PORT, HTTP_CREATED_STATUS,
+    } = require('./variables');
 
 const app = express();
 app.use(express.json());
@@ -49,6 +55,25 @@ app.post('/login', validationEmail, validationPassword, async (req, res) => {
     token = tokengenerate(16);
 
     return res.status(HTTP_OK_STATUS).json({ token });
+});
+
+app.post('/talker', validationToken,
+validationName,
+validationAge,
+validationTalk,
+validationTalkWatchedAt,
+validationTalkRate, 
+async (req, res) => {
+    const talker = req.body;
+    const filePath = path.join(__dirname, 'talker.json');
+    const data = fs.readFileSync(filePath);
+    const talkers = JSON.parse(data);
+    talker.id = talkers.length + 1;
+
+    talkers.push(talker);
+    fs.writeFileSync(filePath, JSON.stringify(talkers));
+
+    return res.status(HTTP_CREATED_STATUS).json(talker);
 });
 
 app.listen(PORT, () => {
