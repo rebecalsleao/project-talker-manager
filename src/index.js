@@ -19,6 +19,8 @@ const {
     HTTP_CREATED_STATUS,
 } = require('./variables');
 
+const filePath = path.join(__dirname, 'talker.json');
+
 const app = express();
 app.use(express.json());
 
@@ -26,7 +28,6 @@ app.use(express.json());
 app.get('/', (_request, response) => response.status(HTTP_OK_STATUS).send());
 
 app.get('/talker', (req, res) => {
-    const filePath = path.join(__dirname, 'talker.json');
     const data = fs.readFileSync(filePath);
     const talker = JSON.parse(data);
 
@@ -38,7 +39,6 @@ app.get('/talker', (req, res) => {
 });
 
 app.get('/talker/:id', (req, res) => {
-    const filePath = path.join(__dirname, 'talker.json');
     const data = fs.readFileSync(filePath);
     const talkers = JSON.parse(data);
     const { id } = req.params;
@@ -71,7 +71,6 @@ app.post(
     validationTalkRate,
     async (req, res) => {
         const talker = req.body;
-        const filePath = path.join(__dirname, 'talker.json');
         const data = fs.readFileSync(filePath);
         const talkers = JSON.parse(data);
         talker.id = talkers.length + 1;
@@ -94,7 +93,6 @@ app.put(
     async (req, res) => {
         const { id } = req.params;
         const { name, age, talk } = req.body;
-        const filePath = path.join(__dirname, 'talker.json');
         const data = fs.readFileSync(filePath);
         const talkers = JSON.parse(data);
 
@@ -114,7 +112,6 @@ return res.status(HTTP_NOT_FOUND_404_STATUS).json({ message: 'Pessoa palestrante
 
 app.delete('/talker/:id', validationToken, async (req, res) => {
     const { id } = req.params;
-    const filePath = path.join(__dirname, 'talker.json');
     const data = fs.readFileSync(filePath);
     const talkers = JSON.parse(data);
 
