@@ -76,6 +76,33 @@ async (req, res) => {
     return res.status(HTTP_CREATED_STATUS).json(talker);
 });
 
+app.put('/talker/:id',
+    validationToken,
+    validationName,
+    validationAge,
+    validationTalk,
+    validationTalkWatchedAt,
+    validationTalkRate,
+    async (req, res) => {
+    const { id } = req.params;
+    const { name, age, talk } = req.body;
+    const filePath = path.join(__dirname, 'talker.json');
+    const data = fs.readFileSync(filePath);
+    const talkers = JSON.parse(data);
+  
+    const index = talkers.findIndex((talker) => talker.id === Number(id));
+  
+    if (index === -1 || !id) {
+return res.status(HTTP_NOT_FOUND_404_STATUS).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+
+    const updatedTalker = { id: Number(id), name, age, talk };
+    talkers.splice(index, 1, updatedTalker);
+    fs.writeFileSync(filePath, JSON.stringify(talkers));
+
+   return res.status(HTTP_OK_STATUS).json(updatedTalker);
+  });
+
 app.listen(PORT, () => {
     console.log('Online');
 });
