@@ -3,17 +3,21 @@ const fs = require('fs');
 const path = require('path');
 const tokengenerate = require('./tokengenerate');
 const { validationEmail, validationPassword } = require('./middlewarelogin');
-const { validationToken,
+const {
+    validationToken,
     validationName,
     validationAge,
     validationTalk,
     validationTalkWatchedAt,
-    validationTalkRate } = require('./middlearetalker');
-const { 
-        HTTP_OK_STATUS, 
-        HTTP_NOT_FOUND_404_STATUS, 
-        PORT, HTTP_CREATED_STATUS,
-    } = require('./variables');
+    validationTalkRate,
+} = require('./middlearetalker');
+const {
+    HTTP_OK_STATUS,
+    HTTP_NO_CONTENT_204_STATUS,
+    HTTP_NOT_FOUND_404_STATUS,
+    PORT,
+    HTTP_CREATED_STATUS,
+} = require('./variables');
 
 const app = express();
 app.use(express.json());
@@ -57,26 +61,8 @@ app.post('/login', validationEmail, validationPassword, async (req, res) => {
     return res.status(HTTP_OK_STATUS).json({ token });
 });
 
-app.post('/talker', validationToken,
-validationName,
-validationAge,
-validationTalk,
-validationTalkWatchedAt,
-validationTalkRate, 
-async (req, res) => {
-    const talker = req.body;
-    const filePath = path.join(__dirname, 'talker.json');
-    const data = fs.readFileSync(filePath);
-    const talkers = JSON.parse(data);
-    talker.id = talkers.length + 1;
-
-    talkers.push(talker);
-    fs.writeFileSync(filePath, JSON.stringify(talkers));
-
-    return res.status(HTTP_CREATED_STATUS).json(talker);
-});
-
-app.put('/talker/:id',
+app.post(
+    '/talker',
     validationToken,
     validationName,
     validationAge,
@@ -84,24 +70,61 @@ app.put('/talker/:id',
     validationTalkWatchedAt,
     validationTalkRate,
     async (req, res) => {
+        const talker = req.body;
+        const filePath = path.join(__dirname, 'talker.json');
+        const data = fs.readFileSync(filePath);
+        const talkers = JSON.parse(data);
+        talker.id = talkers.length + 1;
+
+        talkers.push(talker);
+        fs.writeFileSync(filePath, JSON.stringify(talkers));
+
+        return res.status(HTTP_CREATED_STATUS).json(talker);
+    },
+);
+
+app.put(
+    '/talker/:id',
+    validationToken,
+    validationName,
+    validationAge,
+    validationTalk,
+    validationTalkWatchedAt,
+    validationTalkRate,
+    async (req, res) => {
+        const { id } = req.params;
+        const { name, age, talk } = req.body;
+        const filePath = path.join(__dirname, 'talker.json');
+        const data = fs.readFileSync(filePath);
+        const talkers = JSON.parse(data);
+
+        const index = talkers.findIndex((talker) => talker.id === Number(id));
+
+        if (index === -1 || !id) {
+return res.status(HTTP_NOT_FOUND_404_STATUS).json({ message: 'Pessoa palestrante não encontrada' });
+        }
+
+        const updatedTalker = { id: Number(id), name, age, talk };
+        talkers.splice(index, 1, updatedTalker);
+        fs.writeFileSync(filePath, JSON.stringify(talkers));
+
+        return res.status(HTTP_OK_STATUS).json(updatedTalker);
+    },
+);
+
+app.delete('/talker/:id', validationToken, async (req, res) => {
     const { id } = req.params;
-    const { name, age, talk } = req.body;
     const filePath = path.join(__dirname, 'talker.json');
     const data = fs.readFileSync(filePath);
     const talkers = JSON.parse(data);
-  
-    const index = talkers.findIndex((talker) => talker.id === Number(id));
-  
-    if (index === -1 || !id) {
-return res.status(HTTP_NOT_FOUND_404_STATUS).json({ message: 'Pessoa palestrante não encontrada' });
-    }
 
-    const updatedTalker = { id: Number(id), name, age, talk };
-    talkers.splice(index, 1, updatedTalker);
+    const positionTalkerId = talkers.findIndex((talk) => talk.id === Number(id));
+    talkers.splice(positionTalkerId, 1);
+
     fs.writeFileSync(filePath, JSON.stringify(talkers));
 
-   return res.status(HTTP_OK_STATUS).json(updatedTalker);
-  });
+    return res.status(HTTP_NO_CONTENT_204_STATUS).end();
+});
 
 app.listen(PORT, () => {
     console.log('Online');
